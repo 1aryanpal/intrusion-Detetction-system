@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="refresh" content="10">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Intrusion Detection Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f5f7fa;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .card {
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .header {
+      background-color: #1f2937;
+      color: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 30px;
+    }
+    .alert-high {
+      border-left: 5px solid #dc3545;
+    }
+    .alert-medium {
+      border-left: 5px solid #ffc107;
+    }
+    .alert-low {
+      border-left: 5px solid #0d6efd;
+    }
+    .timestamp {
+      font-size: 0.85rem;
+      color: #6c757d;
+    }
+    .nav-links {
+      margin-top: 15px;
+    }
+    .nav-links a {
+      margin-right: 15px;
+      color: #fff;
+      text-decoration: underline;
+    }
+  </style>
+  <script>
+    function refreshAlerts() {
+      fetch('/')
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(html, 'text/html');
+          const newAlerts = doc.querySelector('#alerts-container').innerHTML;
+          const newPackets = doc.querySelector('#packets-container').innerHTML;
+          document.querySelector('#alerts-container').innerHTML = newAlerts;
+          document.querySelector('#packets-container').innerHTML = newPackets;
+        });
+    }
+    setInterval(refreshAlerts, 10000);
+  </script>
+</head>
+<body>
+  <div class="container mt-4">
+    <div class="header text-center">
+      <h2>🚨 Intrusion Detection System Dashboard</h2>
+      <p class="mb-0">Real-time alerts for network activity</p>
+      <input class="form-control mt-3" type="text" id="searchInput" onkeyup="searchAlerts()" placeholder="Search alerts...">
+      <div class="nav-links">
+        <a href="/threats" target="_blank">Recent Threats</a>
+        <a href="/about" target="_blank">About IDS</a>
+        <a href="/docs" target="_blank">Documentation</a>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6">
+        <h4 class="mb-3">🔍 Normal Packets</h4>
+        <div id="packets-container">
+          {% if packets %}
+            {% for pkt in packets %}
+              <div class="card mb-2 p-2">
+                <strong>{{ pkt }}</strong>
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="alert alert-secondary text-center">
+              <strong>No packet data yet.</strong>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+      <div class="col-md-6">
+        <h4 class="mb-3">⚠️ Alerts</h4>
+        <div id="alerts-container">
+          {% if alerts %}
+            {% for alert in alerts %}
+              {% set severity = alert.split(" - ")[0].strip("[]").lower() %}
+              <div class="card mb-3 p-3 alert-{{ severity }}">
+                <div class="d-flex justify-content-between">
+                  <strong class="alert-text">{{ alert }}</strong>
+                  <span class="timestamp">Logged</span>
+                </div>
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="alert alert-secondary text-center">
+              <strong>No alerts found.</strong> System is running normally.
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function searchAlerts() {
+      const input = document.getElementById("searchInput");
+      const filter = input.value.toLowerCase();
+      const cards = document.querySelectorAll(".alert-text");
+      cards.forEach(card => {
+        const parent = card.closest(".card");
+        if (card.textContent.toLowerCase().includes(filter)) {
+          parent.style.display = "";
+        } else {
+          parent.style.display = "none";
+        }
+      });
+    }
+  </script>
+</body>
+</html>

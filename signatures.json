@@ -1,0 +1,32 @@
+[
+  {
+    "name": "HTTP Traffic",
+    "severity": "low",
+    "match": {
+      "dst_port": [80, 7000]
+    }
+  },
+  {
+    "name": "ICMP Ping",
+    "severity": "medium",
+    "match": {
+      "protocol": [1]
+    }
+  },
+  {
+    "name": "Suspicious Keyword",
+    "severity": "high",
+    "match": {
+      "payload_keywords": ["admin", "nmap", "password"]
+    }
+  },
+  {
+  "severity": "HIGH",
+  "name": "Suspicious Keyword",
+  "src_ip": "127.0.0.1",
+  "dst_port": 80,
+  "details": "Keyword 'admin' found in payload",
+  "timestamp": "..."
+}
+
+]
